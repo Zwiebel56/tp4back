@@ -6,9 +6,9 @@ const {Client} = pkg;
 const client = new Client(dbconfig)
 await client.connect()
 
-const result = await client.query("SELECT * FROM usuario order by id")
+const result = await client.query("SELECT * FROM usuario")
 console.log(result.rows)
-const usuario1 = result.rows[0].nombre
+const usuario1 = result.rows[0].usuario
 console.log("usuario1:",usuario1)
 
 await client.end()
@@ -23,3 +23,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Local en http://localhost:${PORT}`);
 });
+
