@@ -24,3 +24,9 @@ app.listen(PORT, () => {
   console.log(`Local en http://localhost:${PORT}`);
 });
 
+app.post('/crearusuario', async (req, res)) => {
+  const user = req.body;
+  if (!user.nombre || !user.password) {
+      return res.status(400).json(message: "Debe completar todos los campos");
+  }
+}
