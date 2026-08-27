@@ -143,3 +143,17 @@ vite.config.ts.timestamp-*
 .vite/venv/
 datos/
 *.h5
+
+# Dataset e imágenes (pesados)
+datos/
+*.jpg
+*.jpeg
+*.png
+
+# Entorno virtual y modelos pesados
+venv/
+models/*.h5
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
