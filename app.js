@@ -1,6 +1,9 @@
 import pkg from 'pg'
 import dbconfig from './dbconfig.js'
 import express from 'express'
+import bcrypt from 'bcrypt' 
+import jwt from 'jsonwebtoken'
+
 
 const {Client} = pkg;
 const client = new Client(dbconfig)
@@ -14,12 +17,18 @@ console.log("usuario1:",usuario1)
 await client.end()
 
 const app = express()
+app.use(express.json()); 
+
+// ¡DEFINIDO AQUÍ GLOBALMENTE PARA TODO EL ARCHIVO!
+const JWT_SECRET = process.env.JWT_SECRET || 'mi_clave_secreta_super_segura';
+
 const port = 3000;
 app.get('/',(req,res)=>res.send("Welcome " + usuario1 ))
 export default app;
 
 
 const PORT = process.env.PORT || 3000;
+//
 app.listen(PORT, () => {
   console.log(`Local en http://localhost:${PORT}`);
 });
@@ -88,20 +97,41 @@ app.post('/login', async (req, res) => {
 });
 
 //3
-app.get('/escucho', autenticarToken, async (req, res) => {
-  const userid = req.usuario.userid;
+const Token = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && (authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader);
 
+  if (!token) {
+    return res.status(401).json({ message: "Acceso denegado. Falta el Token." });
+  }
+
+  try {
+    // Usa la variable global declarada arriba
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.usuario = decoded; 
+    next(); 
+  } catch (error) {
+    return res.status(403).json({ message: "Token inválido o expirado" });
+  }
+};
+
+// 2. Tu endpoint final adaptado exactamente a las columnas de tu imagen
+app.get('/escucho', Token, async (req, res) => {
+  const userid = req.usuario.userid; 
   const client = new Client(dbconfig);
+  
   try {
     await client.connect();
+    
+    // Consulta usando 'idusuario' e 'idcanciones' como se ve en tu captura de pantalla
     const queryText = `
       SELECT c.nombre AS cancion, e.reproducciones 
-      FROM escucha e
-      JOIN cancion c ON e.cancionid = c.id
-      WHERE e.usuarioid = $1
+      FROM escucha e 
+      JOIN cancion c ON e.idcanciones = c.id 
+      WHERE e.idusuario = $1
     `;
+    
     const result = await client.query(queryText, [userid]);
-
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -109,4 +139,3 @@ app.get('/escucho', autenticarToken, async (req, res) => {
     await client.end();
   }
 });
-
