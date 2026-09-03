@@ -115,7 +115,7 @@ const Token = (req, res, next) => {
   }
 };
 
-// 2. Tu endpoint final adaptado exactamente a las columnas de tu imagen
+//2
 app.get('/escucho', Token, async (req, res) => {
   const userid = req.usuario.userid; 
   const client = new Client(dbconfig);
@@ -123,7 +123,7 @@ app.get('/escucho', Token, async (req, res) => {
   try {
     await client.connect();
     
-    // Consulta usando 'idusuario' e 'idcanciones' como se ve en tu captura de pantalla
+    // Consulta usando idusuario y idcanciones
     const queryText = `
       SELECT c.nombre AS cancion, e.reproducciones 
       FROM escucha e 
