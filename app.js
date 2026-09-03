@@ -1,12 +1,14 @@
-import pkg from 'pg'
-import dbconfig from './dbconfig.js'
-import express from 'express'
-import bcrypt from 'bcrypt' 
-import jwt from 'jsonwebtoken'
+import pkg from 'pg';
+import dbconfig from './dbconfig.js';
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import cors from 'cors';
 
 
 const {Client} = pkg;
 const client = new Client(dbconfig)
+const cors = require('cors');
 await client.connect()
 
 const result = await client.query("SELECT * FROM usuario")
@@ -130,6 +132,10 @@ app.get('/escucho', Token, async (req, res) => {
       JOIN cancion c ON e.idcanciones = c.id 
       WHERE e.idusuario = $1
     `;
+
+
+    app.use(cors());
+
     
     const result = await client.query(queryText, [userid]);
     res.json(result.rows);
