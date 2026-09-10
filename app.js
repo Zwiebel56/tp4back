@@ -84,6 +84,10 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
 
+    const payload = {
+      id: dbUser.id, rol: dbUser.id.password.rol
+    }
+
     const token = jwt.sign(
       { userid: usuario.id, nombre: usuario.nombre },
       JWT_SECRET,
@@ -145,3 +149,6 @@ app.get('/escucho', Token, async (req, res) => {
     await client.end();
   }
 });
+
+
+
