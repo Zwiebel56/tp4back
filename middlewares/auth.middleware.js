@@ -6,12 +6,17 @@ export const verifyToken = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     try {
       const payload = jwt.verify(token, 'secret');
-      req.user_id = payload.id; // Modifica el req agregando el user id que viene en el token
-      next(); // Pasa al próximo middleware
+      req.user_id = payload.id; 
+      next(); 
     } catch (err) {
       console.error(err);
       return res.status(401).send({ error: 'Unauthorized' });
     }
   }
   
-  export const verifyAdmin = async (req, res, next) => {} //aca adentro habian (...)
+  export const verifyAdmin = async (req, res, next) => {
+    if(req.user == 'A'){
+      next();
+    }
+    res.sendStatus(403);
+  };
