@@ -8,7 +8,6 @@ import cors from 'cors';
 
 const {Client} = pkg;
 const client = new Client(dbconfig)
-const cors = require('cors');
 await client.connect()
 
 const result = await client.query("SELECT * FROM usuario")
@@ -19,6 +18,7 @@ console.log("usuario1:",usuario1)
 await client.end()
 
 const app = express()
+app.use(cors());
 app.use(express.json()); 
 
 // ¡DEFINIDO AQUÍ GLOBALMENTE PARA TODO EL ARCHIVO!
@@ -137,10 +137,6 @@ app.get('/escucho', Token, async (req, res) => {
       WHERE e.idusuario = $1
     `;
 
-
-    app.use(cors());
-
-    
     const result = await client.query(queryText, [userid]);
     res.json(result.rows);
   } catch (error) {
