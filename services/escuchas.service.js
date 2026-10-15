@@ -1,12 +1,12 @@
-import pool from '../db.js';
+import pool from '../dbconfig.js';
 
-export const buscarEscucha = async (id) => {
-  const result = awaitpool.query(
+export const buscarEscucha = async (usuarioId, cancionId) => {
+  const result = await pool.query(
     'SELECT * FROM escucha WHERE usuario_id = $1 AND cancion_id = $2',
     [usuarioId, cancionId]
   );
   return result.rows[0];
-}
+};
 
 export const crearEscucha = async (usuarioId, cancionId) => {
   return await pool.query(

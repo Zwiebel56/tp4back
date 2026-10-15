@@ -1,9 +1,9 @@
-import pool from '../db.js';
+import pool from '../dbconfig.js';
 
 export const getUsuarioById = async (id) => {
   const result = await pool.query('SELECT * FROM usuario WHERE id = $1', [id]);
   return result.rows[0];
-};
+}
 
 export const crearUsuario = async (id, nombre, password) => {
   const result = await pool.query(

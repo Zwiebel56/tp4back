@@ -1,5 +1,4 @@
-import { config } from "../dbconfig.js"
-import pool from '../db.js';
+import pool from '../dbconfig.js';
 
 export const crearCancion = async (nombre) => {
   const result = await pool.query(
