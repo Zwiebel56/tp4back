@@ -5,7 +5,7 @@ import { verifyToken, verifyAdmin } from '../middlewares/auth.middleware.js';
 const router = Router();
 
 router.post('/', verifyToken, verifyAdmin, postCancion);
-router.put('/', verifyToken, verifyAdmin, putCancion);
-router.delete('/', verifyToken, verifyAdmin, deleteCancion);
+router.put('/:id', verifyToken, verifyAdmin, putCancion);
+router.delete('/:id', verifyToken, verifyAdmin, deleteCancion);
 
 export default router;

@@ -16,7 +16,8 @@ export const postCancion = async (req, res) => {
 };
 
 export const putCancion = async (req, res) => {
-  const { id, nombre } = req.body;
+  const { nombre } = req.body;
+  const { id } = req.params.id;
 
   if (!id || !nombre) {
     return res.status(400).json({ error: "ID y nombre requeridos." });
@@ -36,7 +37,7 @@ export const putCancion = async (req, res) => {
 };
 
 export const deleteCancion = async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params.id;
 
   if (!id) {
     return res.status(400).json({ error: "ID requerido." });

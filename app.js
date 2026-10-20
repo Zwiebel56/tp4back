@@ -1,46 +1,49 @@
-//import pkg from 'pg';
-//import dbconfig from './dbconfig.js';
-import express from 'express';
-//import bcrypt from 'bcrypt';
-//import jwt from 'jsonwebtoken';
-import cors from 'cors';
-import authRoute from './routes/auth.router.js';
-import cancionRouter from './routes/canciones.router.js';
-import escuchaRouter from './routes/escuchas.router.js';
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
 
+import { sequelize } from "./dbconfig.js";
+import Usuario from "./models/usuario.js";
+import Cancion from "./models/cancion.js";
+import Escucha from "./models/escucha.js";
 
-/*
-const {Client} = pkg;
-const client = new Client(dbconfig)
-await client.connect()
+import authRouter from "./routes/auth.router.js";
+import cancionesRouter from "./routes/canciones.router.js";
+import escuchasRouter from "./routes/escuchas.router.js";
 
-const result = await client.query("SELECT * FROM usuario")
-console.log(result.rows)
-const usuario1 = result.rows[0].usuario
-console.log("usuario1:",usuario1)
+const app = express();
 
-await client.end()
-*/
-
-const app = express()
+app.use(express.json());
 app.use(cors());
-app.use(express.json()); 
-app.use('/auth',authRoute)
-app.use('/cancion',cancionRouter)
-app.use('/escucha',escuchaRouter)
 
-// ¡DEFINIDO AQUÍ GLOBALMENTE PARA TODO EL ARCHIVO!
-//const JWT_SECRET = process.env.JWT_SECRET || 'mi_clave_secreta_super_segura';
+app.get("/", (_, res) => res.send("SpoTICfy API is running..."));
+app.use("/auth", authRouter);
+app.use("/cancion", cancionesRouter);
+app.use("/escucha", escuchasRouter);
 
-const port = 3000;
+const defineModels = async () => {
+  try {
+    Usuario.belongsToMany(Cancion, { through: Escucha, foreignKey: "usuario_id" });
+    Cancion.belongsToMany(Usuario, { through: Escucha, foreignKey: "cancion_id" });
 
-//app.get('/',(req,res)=>res.send("Welcome " + usuario1 ))
+    Usuario.hasMany(Escucha, { foreignKey: "usuario_id" });
+    Escucha.belongsTo(Usuario, { foreignKey: "usuario_id" });
 
+    Cancion.hasMany(Escucha, { foreignKey: "cancion_id" });
+    Escucha.belongsTo(Cancion, { foreignKey: "cancion_id" });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Local en http://localhost:${PORT}`);
-});
+    await sequelize.sync({ force: false, alter: false });
+    console.log("Modelos y relaciones sincronizados correctamente.");
+
+    const PORT = process.env.PORT || 8000;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Error al sincronizar la base de datos:", error);
+  }
+};
+
+defineModels();
+
 export default app;
-
-

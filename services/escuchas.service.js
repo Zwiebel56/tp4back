@@ -1,38 +1,33 @@
-import pool from '../dbconfig.js';
+import Escucha from "../models/escucha.js";
 
 export const buscarEscucha = async (usuarioId, cancionId) => {
-  const result = await pool.query(
-    'SELECT * FROM escucha WHERE usuario_id = $1 AND cancion_id = $2',
-    [usuarioId, cancionId]
-  );
-  return result.rows[0];
+  return await Escucha.findOne({
+    where: {
+      usuario_id: usuarioId,
+      cancion_id: cancionId,
+    },
+  });
 };
 
 export const crearEscucha = async (usuarioId, cancionId) => {
-  return await pool.query(
-    'INSERT INTO escucha (usuario_id, cancion_id, reproducciones) VALUES ($1, $2, 1)',
-    [usuarioId, cancionId]
-  );
+  return await Escucha.create({
+    usuario_id: usuarioId,
+    cancion_id: cancionId,
+    reproducciones: 1,
+  });
 };
 
 export const incrementarEscucha = async (id) => {
-  return await pool.query(
-    'UPDATE escucha SET reproducciones = reproducciones + 1 WHERE id = $1',
-    [id]
-  );
+  const escucha = await Escucha.findByPk(id);
+  if (escucha) {
+    return await escucha.increment("reproducciones", { by: 1 });
+  }
+  return null;
 };
 
 export const obtenerTotalReproducciones = async (usuarioId) => {
-  const result = await pool.query(
-    'SELECT SUM(reproducciones) AS total FROM escucha WHERE usuario_id = $1',
-    [usuarioId]
-  );
-  return parseInt(result.rows[0].total || 0, 10);
-};
-
-export const actualizarUsuarioFan = async (usuarioId) => {
-  return await pool.query(
-    'UPDATE usuario SET fan = true WHERE id = $1',
-    [usuarioId]
-  );
+  const total = await Escucha.sum("reproducciones", {
+    where: { usuario_id: usuarioId },
+  });
+  return total || 0;
 };
