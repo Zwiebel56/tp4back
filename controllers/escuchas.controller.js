@@ -2,7 +2,7 @@ import * as escuchasService from '../services/escuchas.service.js';
 
 export const postEscucho = async (req, res) => {
   const { id } = req.body; 
-  const usuarioId = req.user_id || req.user?.id; 
+  const usuarioId = req.user_id || req.user?.userid; 
 
   if (!id) {
     return res.status(400).json({ error: "ID de canción requerido." });
@@ -19,14 +19,9 @@ export const postEscucho = async (req, res) => {
 
     const total = await escuchasService.obtenerTotalReproducciones(usuarioId);
 
-    if (total > 10) {
-      await escuchasService.actualizarUsuarioFan(usuarioId);
-    }
-
     return res.status(200).json({
       message: "Escucha registrada exitosamente",
-      totalReproducciones: total,
-      esFan: total > 10
+      totalReproducciones: total
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });

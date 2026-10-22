@@ -1,25 +1,29 @@
 import jwt from 'jsonwebtoken';
 
-export const verifyToken = async (req, res, next) => {
+export const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
+
   if (!authHeader) {
-    return res.status(401).send({ error: 'No llegó ningún token en los headers' });
+    return res.status(401).json({ error: 'No llegó ningún token en los headers.' });
   }
-  const token = authHeader.split(' ')[1];
+
+  const token = authHeader.startsWith('Bearer ') 
+    ? authHeader.split(' ')[1] 
+    : authHeader;
+
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    req.user_id = payload.id;
     req.user = payload;
+    req.user_id = payload.userid;
     next();
   } catch (err) {
-    console.error(err);
-    return res.status(401).send({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Token inválido o expirado.' });
   }
 };
 
-export const verifyAdmin = async (req, res, next) => {
-  if (req.user && req.user.rol === 'A') {
+export const verifyAdmin = (req, res, next) => {
+  if (req.user && req.user.admin === true) {
     return next();
   }
-  return res.sendStatus(403);
+  return res.status(403).json({ error: 'Acceso denegado: requiere permisos de administrador.' });
 };
