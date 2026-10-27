@@ -8,13 +8,19 @@ import "dotenv/config";
 
 import { Cancion } from './models/cancion.js';
  import { Usuario } from './models/usuario.js';
- import { Escucha } from './models/escucha.js';
+ import  Escucha  from './models/escucha.js';
  import { sequelize } from "./dbconfig.js";
 
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+const defineModels = async () => {
+  Usuario.belongsToMany(Cancion, {through: Escucha});
+  Cancion.belongsToMany(Usuario, {through: Escucha});
+  await sequelize.sync({ force: false, alter: true });
+}
 
 app.get("/", (_, res) => res.send("SpoTICfy API is running..."));
 app.use("/auth", authRouter);

@@ -12,9 +12,18 @@ const getUsuarioById = async (id) => {
  
 };
 
+
+
+const getUsuarioByNombre = async (nombre) => {
+        const u = Usuario.findAll({"where": {nombre}});
+        if (!u) return null;
+        return u;
+ 
+};
+
 const createUsuario = async (usuario) => {
         const u = await Usuario.create(usuario);    
         return u;
  
 }
-export default { getUsuarioById, createUsuario };
+export default { getUsuarioById, createUsuario, getUsuarioByNombre };

@@ -6,9 +6,10 @@ export class Usuario extends Model {}
 Usuario.init(
     {
         userid: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             allowNull: false,
+            autoIncrement:true
         },
         nombre: {
             type: DataTypes.STRING,

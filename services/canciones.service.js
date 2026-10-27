@@ -1,7 +1,7 @@
 
 import { Cancion } from '../models/cancion.js';
  import { Usuario } from '../models/usuario.js';
- import { Escucha } from '../models/escucha.js';
+ import  Escucha  from '../models/escucha.js';
  
 const getCanciones = async (id) => {
     const usuario =await Usuario.findByPk(id, { include: Cancion } );

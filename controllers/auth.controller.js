@@ -8,7 +8,7 @@ const register = async (req, res) => {
     if (!user) {
         return res.status(400).json({ message: "No hay ningun usuario" });
     }
-    if (!user.nombre || !user.userid || !user.password) {
+    if (!user.nombre || !user.password) {
         return res.status(400).json({ message: "Hay 1 campo o más sin completar" });
     }
     try {
@@ -30,12 +30,12 @@ const register = async (req, res) => {
     }
 };
 const login = async (req, res) => {
-    const { userid,password } = req.body;
-    if (!userid||!password){
+    const { nombre,password } = req.body;
+    if (!nombre||!password){
         return res.status(400).json({ message: "Hay campos sin completar" });
     }
     try{
-        const user=await usuariosService.getUsuarioById(userid);
+        const user=await usuariosService.getUsuarioByNombre(nombre);
         if(!user){
             return res.status(400).json({ message: "No hay ningun usuario, con ese id" });
         }
@@ -52,4 +52,4 @@ const login = async (req, res) => {
     } 
 };
 
-export default { register, login };
+export  { register, login };
