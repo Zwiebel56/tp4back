@@ -1,31 +1,23 @@
-import 'dotenv/config';
-import { Sequelize } from 'sequelize';
+import "dotenv/config";
 
-export const sequelize = new Sequelize(
-  process.env.PGDATABASE,
-  process.env.PGUSER,
-  process.env.PGPASSWORD,
-  {
-    host: process.env.PGHOST,
-    port: 5432,
-    dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-      },
-    },
-    logging: false,
-  }
-);
-
-console.log('*** DB Config ****');
-
-try {
-  await sequelize.authenticate();
-  console.log('Connection has been established successfully.');
-} catch (error) {
-  console.error('Unable to connect to the database:', error);
+export const config = {
+    host :process.env.PGHOST,
+    database:process.env.PGDATABASE,
+    user:process.env.PGUSER,
+    password:process.env.PGPASSWORD,
+    port:5432,
+    ssl: true
 }
 
-export default sequelize;
+console.log("*** DB Config ****")
+import { Sequelize } from "sequelize";
+
+export const sequelize = new Sequelize(process.env.DB_URL, {dialect: "postgres"});
+
+try {
+    await sequelize.authenticate();
+    console.log("Connection has been established successfully.");
+} catch (error) {
+    console.error("Unable to connect to the database:", error);
+}
+//await sequelize.close();

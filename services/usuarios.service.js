@@ -1,14 +1,20 @@
-import Usuario from "../models/usuario.js";
+import pkg from 'pg'
+const {Client} = pkg;
+import { config } from "../dbconfig.js";
 
-export const getUsuarioById = async (userid) => {
-  return await Usuario.findByPk(userid);
+import { Usuario } from '../models/usuario.js';
+
+
+const getUsuarioById = async (id) => {
+        const u = Usuario.findByPk(id);
+        if (!u) return null;
+        return u;
+ 
 };
 
-export const crearUsuario = async (userid, nombre, password) => {
-  return await Usuario.create({
-    userid,
-    nombre,
-    password,
-    admin: false,
-  });
-};
+const createUsuario = async (usuario) => {
+        const u = await Usuario.create(usuario);    
+        return u;
+ 
+}
+export default { getUsuarioById, createUsuario };

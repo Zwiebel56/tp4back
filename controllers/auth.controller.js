@@ -1,51 +1,55 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import * as usuariosService from '../services/usuarios.service.js';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import usuariosService from "../services/usuarios.service.js";
 
-export const crearUsuario = async (req, res) => {
-  const { userid, nombre, password } = req.body;
 
-  if (!userid || !nombre || !password) {
-    return res.status(400).json({ error: "Debe completar todos los campos." });
-  }
+const register = async (req, res) => {
+    const user = req.body;
+    if (!user) {
+        return res.status(400).json({ message: "No hay ningun usuario" });
+    }
+    if (!user.nombre || !user.userid || !user.password) {
+        return res.status(400).json({ message: "Hay 1 campo o más sin completar" });
+    }
+    try {
+        const usuarioID = await usuariosService.getUsuarioById(user.userid);
+        if (usuarioID) {
+            return res.status(400).json({ message: "El usuario ya existe con ese id" });
+        }
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const nuevoUsuario = await usuariosService.crearUsuario(userid, nombre, hashedPassword);
-    return res.status(201).json({ message: "Usuario creado exitosamente", user: nuevoUsuario });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        user.password = hashedPassword;
+
+        const UsuarioNew = await usuariosService.createUsuario(user);
+
+        return res.status(201).json({ message: "Usuario creado de forma exitosa" });
+
+    } catch (error) {
+        console.error("Error al registrar usuario:", error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+const login = async (req, res) => {
+    const { userid,password } = req.body;
+    if (!userid||!password){
+        return res.status(400).json({ message: "Hay campos sin completar" });
+    }
+    try{
+        const user=await usuariosService.getUsuarioById(userid);
+        if(!user){
+            return res.status(400).json({ message: "No hay ningun usuario, con ese id" });
+        }
+        const contraValida=await bcrypt.compare(password,user.password);
+        if(!contraValida){
+            return res.status(400).json({message:"Contraseña incorrecta, intente nuevamente"});
+        }
+        const payload = { id: user.userid };
+        console.log("Creating token. Payload:", payload)
+        const token=jwt.sign(payload,"secret",{expiresIn:"1h"});
+        return res.status(200).json({user, token})
+    }catch(e){
+        return res.status(500).json({message:e.message});
+    } 
 };
 
-export const login = async (req, res) => {
-  const { userid, password } = req.body;
-
-  if (!userid || !password) {
-    return res.status(400).json({ error: "Falta usuario o contraseña." });
-  }
-
-  try {
-    const usuario = await usuariosService.getUsuarioById(userid);
-
-    if (!usuario) {
-      return res.status(404).json({ error: "El usuario no existe." });
-    }
-
-    const match = await bcrypt.compare(password, usuario.password);
-
-    if (!match) {
-      return res.status(401).json({ error: "Contraseña incorrecta." });
-    }
-
-    const token = jwt.sign(
-      { userid: usuario.userid, nombre: usuario.nombre, admin: usuario.admin },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '2h' }
-    );
-
-    return res.status(200).json({ token });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
+export default { register, login };

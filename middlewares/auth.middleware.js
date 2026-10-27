@@ -1,29 +1,35 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import usuariosService from "../services/usuarios.service.js";
 
-export const verifyToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
+export const verifyToken = async (req, res, next) => {
+    console.log("Verifying token...");
+ const authHeader = req.headers['authorization'];
+ if (!authHeader) {
+   return res.status(401).send({ error: 'No llegó ningún token en los headers' });
+ }
+ const token = authHeader.split(' ')[1];
+ try {
+   const decoded = jwt.verify(token, 'secret');
+   req.user = decoded;
+   console.log("Token verified:", req.user);
+   next();
+ } catch (err) {
+   console.error(err);
+   return res.status(401).send({ error: 'Unauthorized' });
+ }
+}
 
-  if (!authHeader) {
-    return res.status(401).json({ error: 'No llegó ningún token en los headers.' });
-  }
+export const verifyAdmin = async (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).send({ error: 'no user' });
+    }
+    console.log("req.user:", req.user);
 
-  const token = authHeader.startsWith('Bearer ') 
-    ? authHeader.split(' ')[1] 
-    : authHeader;
+    const user=await usuariosService.getUsuarioById(req.user.id);
 
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    req.user = payload;
-    req.user_id = payload.userid;
-    next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Token inválido o expirado.' });
-  }
-};
-
-export const verifyAdmin = (req, res, next) => {
-  if (req.user && req.user.admin === true) {
-    return next();
-  }
-  return res.status(403).json({ error: 'Acceso denegado: requiere permisos de administrador.' });
-};
+        console.log("db.user:", user);
+   if (!user.admin) {
+       return res.status(403).send({ error: 'Forbidden' });
+   }
+   next();
+}
