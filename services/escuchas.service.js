@@ -1,6 +1,8 @@
 import Escucha from "../models/escucha.js";
 
 export const buscarEscucha = async (usuarioId, cancionId) => {
+  console.log("be usuario",usuarioId)
+  console.log("be cancion", cancionId)
   return await Escucha.findOne({
     where: {
       usuario_id: usuarioId,
@@ -26,6 +28,7 @@ export const incrementarEscucha = async (id) => {
 };
 
 export const obtenerTotalReproducciones = async (usuarioId) => {
+  console.log("***** usuario id",usuarioId)
   const total = await Escucha.sum("reproducciones", {
     where: { usuario_id: usuarioId },
   });

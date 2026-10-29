@@ -19,7 +19,7 @@ app.use(cors());
 const defineModels = async () => {
   Usuario.belongsToMany(Cancion, {through: Escucha});
   Cancion.belongsToMany(Usuario, {through: Escucha});
-  await sequelize.sync({ force: false, alter: true });
+  await sequelize.sync({ force: false, alter: false });
 }
 
 app.get("/", (_, res) => res.send("SpoTICfy API is running..."));

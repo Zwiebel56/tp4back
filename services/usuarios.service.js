@@ -6,7 +6,7 @@ import { Usuario } from '../models/usuario.js';
 
 
 const getUsuarioById = async (id) => {
-        const u = Usuario.findByPk(id);
+        const u = await Usuario.findByPk(id);
         if (!u) return null;
         return u;
  
@@ -15,9 +15,9 @@ const getUsuarioById = async (id) => {
 
 
 const getUsuarioByNombre = async (nombre) => {
-        const u = Usuario.findAll({"where": {nombre}});
+        const u =await Usuario.findAll({"where": {nombre}});
         if (!u) return null;
-        return u;
+        return u[0];
  
 };
 
